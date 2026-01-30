@@ -178,7 +178,7 @@ export default function DogClassifier() {
                           />
                         </div>
                         <span className="text-xs font-mono text-indigo-400">
-                          {Math.round(result.score * 100)}% de confiance
+                          {(result.score * 100).toFixed(1)}% de confiance
                         </span>
                       </div>
                     </div>
@@ -186,20 +186,6 @@ export default function DogClassifier() {
                 </div>
               </div>
             </div>
-
-            {!loading && result && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex justify-end"
-              >
-                <div className="bg-indigo-600/10 border border-indigo-500/20 rounded-2xl p-4 max-w-md text-right">
-                  <p className="text-sm text-indigo-300">
-                    Merci ! C'est exactement ce que je pensais. Est-ce que tu peux m'en dire plus sur les besoins en exercice de cette race ?
-                  </p>
-                </div>
-              </motion.div>
-            )}
           </motion.div>
         )}
       </AnimatePresence>

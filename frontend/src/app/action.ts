@@ -2,55 +2,36 @@
 
 export async function classifyDogBreed(formData: FormData) {
   const file = formData.get("image") as File;
-  if (!file) {
-    return { error: "No image uploaded" };
-  }
+  if (!file) return { error: "No image uploaded" };
 
   try {
-    const buffer = Buffer.from(await file.arrayBuffer());
-    
-    // Hugging Face Inference API
-    const response = await fetch(
-      "https://api-inference.huggingface.co/models/prithivMLmods/Dog-Breed-120",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.HF_TOKEN || ""}`,
-          "Content-Type": "application/octet-stream",
-        },
-        body: buffer,
-      }
-    );
+    const apiUrl = process.env.LOCAL_MODEL_URL || "http://localhost:8000/predict";
+
+    const f = new FormData();
+    f.append("image", file);
+
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      body: f,
+    });
 
     if (!response.ok) {
-      // Fallback mock if API is down or token missing
-      console.warn("HF API error or token missing, falling back to mock");
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      return {
-        label: "Golden Retriever",
-        score: 0.05,
-        description: "The Golden Retriever is a sturdy, muscular dog of medium size, famous for the dense, lustrous coat of gold that gives the breed its name. They are known for their friendly and tolerant attitude, making them great family pets.",
-      };
+      const txt = await response.text();
+      return { error: `Local model error: ${txt}` };
     }
 
-    const predictions = await response.json();
-    const topPrediction = predictions[0];
+    const result = await response.json();
 
-    const breedLabel = topPrediction.label
+    const breedLabel = result.label
       .split("_")
-      .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+      .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
       .join(" ");
 
-    // Generate a simple LLM-like description mock
-    const description = `This image likely features a ${breedLabel}. This breed is characterized by its distinctive features and personality traits. Based on my analysis, I am ${(topPrediction.score * 100).toFixed(1)}% confident in this identification.`;
+    const description = `Cette image semble être un ${breedLabel} à ${(result.score * 100).toFixed(1)}%`;
 
-    return {
-      label: breedLabel,
-      score: topPrediction.score,
-      description: description,
-    };
-  } catch (error) {
-    console.error("Classification error:", error);
-    return { error: "Failed to classify breed" };
+    return { label: breedLabel, score: result.score, description, top5: result.top5 };
+  } catch (e) {
+    console.error(e);
+    return { error: "Failed to classify breed (local)" };
   }
 }

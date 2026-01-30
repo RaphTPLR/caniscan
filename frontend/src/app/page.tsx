@@ -46,18 +46,6 @@ export default function Home() {
 
         {/* Classifier Interface */}
         <DogClassifier />
-
-        {/* Footer info */}
-        <footer className="mt-32 pb-12 border-t border-zinc-900 pt-12 text-center space-y-4">
-          <p className="text-zinc-500 text-sm">
-            © 2026 CaniScan AI. Propulsé par Hugging Face & Vision Transformers.
-          </p>
-          <div className="flex justify-center gap-6 text-zinc-600">
-            <a href="#" className="hover:text-zinc-400 transition-colors">Confidentialité</a>
-            <a href="#" className="hover:text-zinc-400 transition-colors">Conditions</a>
-            <a href="#" className="hover:text-zinc-400 transition-colors">Contact</a>
-          </div>
-        </footer>
       </div>
     </main>
   );
